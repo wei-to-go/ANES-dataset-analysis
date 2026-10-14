@@ -1,0 +1,229 @@
+---
+title: "Wei's ANES Report 2022 - ANES Abortion Opinion Analysis"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include = FALSE}
+library(ggplot2)
+library(Metrics)
+library(dplyr)
+library(gbm)
+anes <- read.csv("anesplease.csv")
+readRDS("results")
+```
+##### Wei Dewdney
+
+### Abstract
+The 2020 ANES (American National Election Studies) time series dataset contains data from pre- and post-election surveys. This data compiles demographic information as well as political opinions from various respondents, including opinions on abortion, which is what my research focuses on. The supposed main goal behind the anti-abortion movement is preservation of life, as anti-abortionists are considered "pro-life." Logically speaking, pro-lifers should also be against the death penalty if their ideal truly is to preserve life, right? I investigated this question by creating numerous visualisations and found that most pro-lifers are in favour of the death penalty, which raised the question: what factors *really* contribute to abortion opinions? Using many gbm models, I found that one's political ideology (liberal or conservative) has the most effect on one's opinion on abortion. Age and religion were the next variables with the highest relative influence, but both were not nearly as impactful on abortion opinions as political ideology. These results are important for understanding different views and the reasoning behind them, as well as increasing social awareness on this relevant issue---especially after the overturning of Roe v Wade.
+
+
+### Background
+ANES stands for American National Election Studies, the data is gathered from  pre- and post-election surveys taken by Americans via the internet, video call, and phone call. Information gathered from these surveys include:  
+
+* political opinions  
+* income  
+* vote intention  
+* state of registration  
+* demographic information 
+
+The dataset contains data from 8,280 pre-election surveys and 7,449 post-election surveys conducted in 2020, my research makes use of only the pre-election survey data.
+
+### Research Question
+Are people who are against abortion also against the death penalty due to the logic of "pro-life" ideals? Or is the disapproval of abortion more closely tied to another factor like religion or culture rather than the conservation of life?
+
+### Hypotheses
+**Null**: a person's opinion on abortion and the death penalty are unrelated and have no correlation 
+<br>
+**Alternate**: a person's opinion on abortion and the death penalty are related and not independent of each other since both views are pro-life
+
+### Plots and Figures
+
+###### Figure 1
+```{r, echo=FALSE}
+ ggplot(readRDS("results"), aes(x = model_name, y = accuracy, color = 'green3')) +
+  geom_point() +
+  geom_point(aes(y = rmse, color = 'red')) +
+  geom_point(aes(y = mae, color = 'blue')) +
+  labs(title = 'accuracy, mae, and rmse of gbm models',
+       y = 'value',
+       x = 'model',
+       color = '') +
+  scale_color_manual(labels = c('mae', 'accuracy','rmse'), values = c('blue','green3','red')) +
+  scale_y_continuous(breaks = seq(from = 0, to = 1.1, by = 0.1)) +
+  theme(axis.text.x = element_text(vjust = 0.2, hjust = 0.8, angle = 90, face = 'bold'))  
+
+```
+This graph shows the accuracies and error values of all my gbm models. As you can see, the model with only the liberal/conservative variable performed the best. The model predicting based on the death penalty variable had a very low accuracy as well as a low relative influence.
+
+
+Variable     | Relative Influence |
+-------------|--------------------|---------------------------------------------
+libCons      |       73.368505    |
+religion     |       11.861502    |
+age          |       9.524579     |
+race         |       2.280825     |
+deathPenalty |       1.681733     |
+sexuality    |       0.990996     |
+sex          |       0.291860     |
+
+###### Figure 2
+```{r, echo=FALSE}
+ #death penalty and abortion opinion overlap
+dp <- select(anes, V201345x,V201336)
+dp <- filter(dp, V201345x > 0, V201345x < 5, V201336 > 0, V201336 < 5)
+ggplot(dp, aes(x = as.factor(V201345x), fill = as.factor(V201336), position = "dodge")) +
+  geom_bar(position = position_dodge()) +  
+  labs(title = "death penalty and abortion opinion overlap",
+       x = "opinion on the death penalty",
+       y = "count",
+       fill = "opinion on abortion") +
+  scale_fill_manual(labels = c("never", "sometimes", "most times","always"), values = c("magenta", "orange", "blue", "green")) +
+  scale_x_discrete(labels = c("1" = "favor strongly", "2" = "favor not strongly", "3" = "oppose not strongly", "4" = "oppose strongly"), position = "bottom") +
+  scale_y_continuous(breaks = seq(from = 0, to = 1200, by = 100)) +
+  theme(axis.text.x = element_text(face="bold", color="black", angle = 20))
+```
+Looking more closely at the opinion overlap of death penalty and abortion, we can see the both of my hypotheses are in fact false. The following plots show each variable's distribution from most to least relatively influential.
+
+###### Figure 3
+```{r, echo=FALSE}
+lc <- select(anes, V201336, V201200)
+lc <- filter(lc, V201336 > 0, V201336 != 5, V201200 > 0, V201200 != 99)
+ggplot(lc, aes(x = as.factor(V201336), fill = as.factor(V201200))) +
+  geom_bar(position = position_dodge(), color = "black") +
+  labs(title = "Americans' opinions on abortion",
+       x = "should abortions be allowed?",
+       y = "count",
+       fill = "liberal or conservative") +
+  scale_fill_manual(labels = c("very lib", "liberal", "slightly lib", "middle ground", "slightly cons", "conservative", "very cons"), values = c('#0000ff', '#9265ff', '#cfb1ff', '#FFFFFF', '#ffbfaa', '#ff7b5a', '#ff0000')) +
+  scale_x_discrete(labels = c("1" = "never", "2" = "sometimes", "3" = "most times", "4" = "always")) +
+  theme(axis.text.x = element_text(face="bold", color="black"))
+```
+
+
+###### Figure 4
+```{r, echo=FALSE}
+ages <- select(anes, V201336, V201507x)
+ages <- filter(ages, V201336 > 0, V201336 < 5, V201507x > 0, V201507x < 80)
+ggplot(ages, aes(x = as.factor(V201336), y = V201507x)) +
+  geom_violin(aes(fill = as.factor(V201336))) +
+  labs(title = "Americans' opinions on abortion and their ages (18-79)",
+       x = "should abortions be allowed?",
+       y = "age") +
+  scale_x_discrete(labels = c("1" = "never", "2" = "sometimes", "3" = "most times", "4" = "always")) +
+  theme(axis.text.x = element_text(face="bold", color="black")) +
+  scale_y_continuous(breaks = seq(from = 20, to = 80, by = 5)) +
+  theme(legend.position="none") +
+  geom_boxplot(width=0.1)
+```
+
+
+###### Figure 5
+```{r, echo=FALSE}
+religion <- select(anes, V201336, V201435)
+religion <- filter(religion, V201336 > 0, V201336 != 5, V201435 > 0)
+ggplot(religion, aes(x = as.factor(V201336), fill = as.factor(V201435))) +
+  geom_bar(position = position_dodge(), color = "black") +
+  labs(title = "Americans' opinions on abortion",
+       x = "should abortions be allowed?",
+       y = "count",
+       fill = "religion") +
+  scale_fill_manual(labels = c("protestant", "roman catholic", "orthodox christian", "latter-day saints", "jewish", "muslim", "buddhist", "hindu", "athiest", "agnostic", "something else", "nothing in particular"), values = c('red', 'tomato', 'orange', 'yellow', 'chartreuse', 'green4', 'turquoise', 'light blue', 'blue', 'purple', 'magenta', 'pink')) +
+  scale_x_discrete(labels = c("1" = "never", "2" = "sometimes", "3" = "most times", "4" = "always")) +
+  theme(axis.text.x = element_text(face="bold", color="black"))
+```
+
+###### Figure 6-9
+the following figures show grouped religions to better see the distribution
+```{r, echo=FALSE}
+#non-christian religions' abortion opinions (also excluding "something else" and "nothing in particular")
+noChrist <- filter(religion, V201435 > 4, V201435 < 11)
+ggplot(noChrist, aes(x = as.factor(V201336), fill = as.factor(V201435))) +
+  geom_bar(position = position_dodge(), color = "black") +
+  labs(title = "Non-Christian Americans' opinions on abortion",
+       x = "should abortions be allowed?",
+       y = "count",
+       fill = 'religion (excludes "other" options)') +
+  scale_fill_manual(labels = c("jewish", "muslim", "buddhist", "hindu", "athiest", "agnostic"), values = c('chartreuse', 'green4', 'turquoise', 'light blue', 'blue', 'purple')) +
+  scale_x_discrete(labels = c("1" = "never", "2" = "sometimes", "3" = "most times", "4" = "always")) +
+  theme(axis.text.x = element_text(face="bold", color="black"))
+
+#latter day saints, jews, buddhists, muslims, hindus
+jbmh <- filter(religion, V201435 < 9, V201435 > 3)
+ggplot(jbmh, aes(x = as.factor(V201336), fill = as.factor(V201435))) +
+  geom_bar(position = position_dodge(), color = "black") +
+  labs(title = "Morman, Jewish, Muslim, Buddhist, and Hindu Americans' 
+opinions on abortion",
+       x = "should abortions be allowed?",
+       y = "count",
+       fill = 'religion') +
+  scale_fill_manual(labels = c("latter-day saints","jewish", "muslim", "buddhist", "hindu"), values = c('yellow','chartreuse', 'green4', 'turquoise', 'light blue')) +
+  scale_x_discrete(labels = c("1" = "never", "2" = "sometimes", "3" = "most times", "4" = "always")) +
+  scale_y_continuous(breaks = seq(from = 0, to = 150, by = 10)) +
+  theme(axis.text.x = element_text(face="bold", color="black"))
+
+#christians only 
+christians <- filter(religion, V201435 < 5)
+ggplot(christians, aes(x = as.factor(V201336), fill = as.factor(V201435))) +
+  geom_bar(position = position_dodge(), color = "black") +
+  labs(title = "Christian Americans' opinions on abortion",
+       x = "should abortions be allowed?",
+       y = "count",
+       fill = "religion") +
+  scale_fill_manual(labels = c("protestant", "roman catholic", "orthodox christian", "latter-day saints"), values = c('red', 'tomato', 'orange', 'yellow')) +
+  scale_x_discrete(labels = c("1" = "never", "2" = "sometimes", "3" = "most times", "4" = "always")) +
+  theme(axis.text.x = element_text(face="bold", color="black"))
+
+#abrahamic religions
+abrahamic <- filter(religion, V201435 < 7)
+ggplot(abrahamic, aes(x = as.factor(V201336), fill = as.factor(V201435))) +
+  geom_bar(position = position_dodge(), color = "black") +
+  labs(title = "Americans' opinions on abortion",
+       x = "should abortions be allowed?",
+       y = "count",
+       fill = "religion (abrahamic only)") +
+  scale_fill_manual(labels = c("protestant", "roman catholic", "orthodox christian", "latter-day saints", "jewish", "muslim"), values = c('red', 'tomato', 'orange', 'yellow', 'chartreuse', 'green4')) +
+  scale_x_discrete(labels = c("1" = "never", "2" = "sometimes", "3" = "most times", "4" = "always")) +
+  theme(axis.text.x = element_text(face="bold", color="black"))
+```
+
+
+###### Figure 10
+```{r, echo=FALSE}
+race <- select(anes, V201336, V201549x)
+race <- filter(race, V201336 > 0, V201336 < 5, V201549x > 0)
+ggplot(race,aes(x = as.factor(V201336), fill = as.factor(V201549x))) +
+  geom_bar(position = "dodge", color = "black") +
+  scale_fill_manual(labels = c("white", "black", "hispanic", "AAPI", "native american, indigenous","mixed-raced"), values = c("red", "orange", "yellow", "green3", "blue", "purple", "magenta")) +
+  labs(title = "Americans' opinions on abortion",
+       x = "should abortions be allowed?",
+       fill = "race") +
+  scale_x_discrete(labels = c("1" = "never", "2" = "sometimes", "3" = "most times", "4" = "always")) 
+```
+
+
+###### Figure 11
+```{r, echo=FALSE}
+gay <- select(anes, V201336, V201567)
+gay <- filter(gay, V201336 > 0, V201336 < 5, V201567 > 0)
+ggplot(gay, aes(x = as.factor(V201336), fill = as.factor(V201567))) +
+  geom_bar(position = "dodge", color = "black") +
+  scale_fill_manual(labels = c("straight", "gay/lesbian", "bisexual", "smth else"), values = c("red", "orange", "yellow", "green3")) +
+  labs(title = "Americans' opinions on abortion",
+       x = "should abortions be legal?",
+       fill = "sexuality") +
+  scale_x_discrete(labels = c("1" = "never", "2" = "sometimes", "3" = "most times", "4" = "always")) 
+
+```
+
+
+
+### Discussion
+From the data, we can see that people who are against abortion are not always inherently against the death penalty, which is evidence that the disapproval of abortion has more motives than just the conservation of life. The data shows that most pro-lifers actually favour the death penalty. It can also be observed that a person’s political ideology (liberal or conservative) has a large impact on their opinions on abortion; the impact of other variables, such as sex and race, on abortion opinions are not as large. These findings allow us to better understand American politics and how different factors influence different opinions. After the overturning of Roe v. Wade, abortion rights have been put at high risk across the country. Despite most of the American population being supportive of abortion, the government was able to hinder abortion rights severely. This raises an important question: is the American population properly represented in the government? The purpose of this research is not to question or challenge the American government, but to shed light on relevant issues and become more aware of certain variables' effects on politics. Before conducting my research, I thought age, religion, and sex would have a much more significant impact on abortion opinions than they actually did. Age and religion were slightly influential and sex was barely relevant. My null hypothesis and alternative hypothesis were both wrong, as there is just a little bit of correlation between one's opinion on the death penalty and abortion. If I had more time I would investigate other variables, such as income or state of registration, and see if I could somehow get an accuracy of 70% or higher with one of my models.
+
+
+### Code and Data Availability
+All of my code can be found in the folder titled "WeisProject" in [this GitHub repository](https://github.com/the-codingschool/ANES-dataset-analysis). The raw data can be found as a csv file titled "anesplease.csv" in the same folder. This is the link to the [original dataset](https://electionstudies.org/data-center/2020-time-series-study/); these are the links to the [survey variable guide](https://electionstudies.org/wp-content/uploads/2021/07/anes_timeseries_2020_methodology_userguidecodebook_20210719.pdf) and [non-survey variable guide](https://electionstudies.org/wp-content/uploads/2022/02/anes_timeseries_2020_userguidecodebook_20220210.pdf))

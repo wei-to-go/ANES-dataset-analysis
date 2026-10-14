@@ -1,10 +1,14 @@
 ## Wei's Project
 
 <<<<<<< HEAD
+this is wei's project on the ANES dataset for the coding school summer research program 2022. My mentor is Gustavo. ANES stands for American National Election Studies, the data is gathered from surveys and polls for US eligible voters both pre- and post-election. My project focuses on the topic of opinions on abortion.
+=======
+<<<<<<< HEAD
 this is Wei's project on the ANES dataset for the coding school summer research program 2022. ANES stands for American National Election Studies, the data is gathered from surveys and polls for both pre- and post-election.
 =======
 this is wei's project on the ANES dataset for the coding school summer research program 2022. ANES stands for American National Election Studies, the data is gathered from surveys and polls for US eligible voters both pre- and post-election.
 >>>>>>> f4599772b5c458699f177366faa3081ba960c9b7
+>>>>>>> ac9834884d46b2409b6e1e1513915167eb5a26f8
 
 [dataset link](https://electionstudies.org/data-center/2020-time-series-study/)
 
@@ -15,9 +19,9 @@ this is wei's project on the ANES dataset for the coding school summer research 
 ### FINALIZED RESEARCH QUESTION AND HYPOTHESIS
 ***do people who don't support abortion also not support the death penalty due to the logic of "pro-life" ideals? Or is the disapproval of abortion more closely tied to another factor like religion or culture?*** 
 <br>
-**null**: if someone doesn't support abortion, then they also won't support the death penalty because of their "pro-life" beliefs and no other factors
+**null**: a person's opinion on abortion and the death penalty are unrelated and have no correlation 
 <br>
-**my hypothesis**: if someone doesn't support abortion, then they will support the death penalty because their beliefs are tied to religion, not "pro-life" ideals.
+**alternate hypothesis**:a person's opinion on abortion and the death penalty are related and not independent of each other since both views are pro-life
 
 ### final variables, all pre-election
 * abortion, V201336
@@ -28,23 +32,6 @@ this is wei's project on the ANES dataset for the coding school summer research 
   + The law should permit abortion other than for rape/incest/danger to woman but only after need clearly established (3)
   +  By law, a woman should always be able to obtain an abortion as a matter of personal choice (4)
   + other (5)
-* importance of abortion, V201337
-  + refused (-9)
-  + don't know (-8)
-  + not at all important (1)
-  + not too important (2)
-  + somewhat important (3)
-  + very important (4)
-  + extremely important (5)
-* reaction if supreme court limited abortion rights, V201342x
-  + DK/RF (-2)
-  + extremely pleased (1)
-  + moderately pleased (2)
-  + a little pleased (3)
-  + neither pleased nor upset (4)
-  + a little upset (5)
-  + moderately upset (6)
-  + extremely upset (7)
 * opinion on death penalty, V201345x 
   + DK/RF (-2)
   + favor strongly (1)
@@ -113,63 +100,6 @@ this is wei's project on the ANES dataset for the coding school summer research 
   + two children (2)
   + three children (3)
   + four or more children (4)
-* where respondent grew up (pre), V201575
-  + refused (-9)
-  + don't know (-8)
-  + alabama (1)
-  + alaska (2)
-  + arizona (4)
-  + arkansas (5)
-  + california (6)
-  + colorado (8)
-  + connecticut (9)
-  + delaware (10)
-  + washington DC (11)
-  + florida (12)
-  + georgia (13)
-  + hawaii (15)
-  + idaho (16)
-  + illinois (17)
-  + indiana (18)
-  + iowa (19)
-  + kansas (20)
-  + kentucky (21)
-  + louisiana (22)
-  + maine (23)
-  + maryland (24)
-  + massachussetts (25)
-  + michigan (26)
-  + minnesota (27)
-  + mississippi (28)
-  + missouri (29)
-  + montana (30)
-  + nebraska (31)
-  + nevada (32)
-  + new hampshire (33)
-  + new jersey (34)
-  + new mexico (35)
-  + new york (36)
-  + north carolina (37)
-  + north dakota (38)
-  + ohio (39)
-  + oklahoma (40)
-  + oregon (41)
-  + pennsylvania (42)
-  + rhode island (44)
-  + south carolina (45)
-  + south dakota (46)
-  + tennessee (47)
-  + texas (48) 
-  + utah (49)
-  + vermont (50)
-  + virginia (51)
-  + washington (53)
-  + west virginia (54)
-  + wisconsin (55)
-  + wyoming (56)
-  + puerto rico (57)
-  + another US territory (58)
-  + another country (59)
 * sexual orientation (pre), V201601
   + refused (-9)
   + interview breakoff (-5)
